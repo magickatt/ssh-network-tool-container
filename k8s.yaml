@@ -25,4 +25,4 @@ spec:
       targetPort: 22
   selector:
     app: ssh-network-tools
-  type: NodePort
+  type: LoadBalancer
