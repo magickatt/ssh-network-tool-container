@@ -12,7 +12,7 @@ The default username in the Dockerfile is `test` but this can be changed with a 
 
 The public key is expected to be mounted in the `/opt/ssh_network_tool/keys` directory as `public_key` which will be copied to `authorized_keys` at startup.
 
-An example of how to mount the public key is included in the supplied Kubernetes manifest but a similar method can be used with Nomad or Docker Compose.
+An example of how to mount the public key is included in the supplied k8s manifest but a similar method can be used with Nomad or Docker Compose.
 
 ## Kubernetes
 
