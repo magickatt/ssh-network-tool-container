@@ -6,6 +6,12 @@ Inspired by
 * https://docs.docker.com/engine/examples/running_ssh_service/
 * https://github.com/Praqma/Network-MultiTool
 
+## SSH username and public key
+
+The default username in the Dockerfile is `test` but this can be changed with a [build-time variable](https://docs.docker.com/engine/reference/commandline/build/#set-build-time-variables---build-arg) which you can modify then push your built image to a private registry.
+
+The public key is expected to be mounted in the `/opt/ssh_network_tool/keys` directory as `public_key` which will be copied to `authorized_keys` at startup.
+
 ## Kubernetes
 
 ```bash
@@ -18,6 +24,7 @@ The included `k8s.yaml` is intended to be used to test with Minikube. If you nee
 
 ```bash
 ssh $(minikube ip) -l test \
+  -i ~/.ssh/id_rsa \
   -p $(kubectl get svc ssh-network-tools -o=jsonpath="{.spec.ports[?(@.port==22)].nodePort}")
 ```
 

@@ -8,8 +8,17 @@ spec:
   containers:
     - name: sshd
       image: magickatt/ssh-network-tools:latest
+      imagePullPolicy: Always
       ports:
         - containerPort: 22
+      volumeMounts:
+      - name: public-key
+        mountPath: "/opt/ssh_network_tools/keys"
+        readOnly: true
+  volumes:
+    - name: public-key
+      secret:
+        secretName: ssh-network-tools-public-key
 ---
 apiVersion: v1
 kind: Service
@@ -25,4 +34,15 @@ spec:
       targetPort: 22
   selector:
     app: ssh-network-tools
-  type: LoadBalancer
+  type: NodePort # Change to LoadBalancer if necessary
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ssh-network-tools-public-key
+type: Opaque
+data:
+  # Borrowed an SSH public key
+  # https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key
+  public_key: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBQkl3QUFBUUVBa2xPVXBrREhyZkhZMTdTYnJtVElwTkxUR0s5VGpvbS9CV0RTVQpHUGwrbmFmemxIRFRZVzdoZEk0eVo1ZXcxOEpINEpXOWpiaFVGcnZpUXpNN3hsRUxFVmY0aDlsRlg1UVZrYlBwcFN3ZzBjZGEzClBidjdrT2RKL01UeUJsV1hGQ1IrSEFvM0ZYUml0QnF4aVgxbktoWHBIQVpzTWNpTHE4VjZSanNOQVF3ZHNkTUZ2U2xWSy83WEEKdDNGYW9Kb0FzbmNNMVE5eDUrM1YwV3c2OC9lSUZtYjF6dVVGbGpRSktwcnJYODhYeXBORHZqWU5ieTZ2dy9QYjByd2VydC9FbgptWitBVzRPWlBuVFBJODlaUG1WTUx1YXlyRDJjRTg2Wi9pbDhiK2d3M3IzKzFuS2F0bUlram4yc28xZDAxUXJhVGxNcVZTc2J4Ck5yUkZpOXdyZitNN1E9PSBzY2hhY29uQG15bGFwdG9wLmxvY2Fs
+

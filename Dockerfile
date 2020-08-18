@@ -1,7 +1,6 @@
 FROM ubuntu:20.04
 
 ARG username=test
-ARG password=secret
 
 RUN apt-get update && \ 
   apt-get install -y openssh-server \
@@ -31,19 +30,25 @@ RUN apt-get update && \
   wget
 
 # Overwrite the message of the day
-RUN chmod -x /etc/update-motd.d/* && rm /etc/legal
+RUN chmod -x /etc/update-motd.d/* && \
+  rm /etc/legal
 COPY motd /etc/motd
 
 # Create the SSH user
 RUN useradd --create-home $username
-RUN echo "${username}:${password}" | chpasswd
+RUN mkdir /opt/ssh_network_tool && \
+  echo $username > /opt/ssh_network_tool/username && \
+  mkdir /home/${username}/.ssh -m 700
 
-# SSH login fix. Otherwise user is kicked off after login
-RUN mkdir /var/run/sshd
-RUN sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
-
+# SSH configuration
 ENV NOTVISIBLE "in users profile"
-RUN echo "export VISIBLE=now" >> /etc/profile
+RUN mkdir /var/run/sshd && \
+  sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd && \
+  echo "PasswordAuthentication no" >> /etc/ssh/sshd_config && \
+  echo "export VISIBLE=now" >> /etc/profile
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
+CMD ["/usr/local/bin/entrypoint.sh"]
